@@ -235,7 +235,7 @@ abstract class CoroutineStackFrameItem(val frame: StackFrameProxyImpl, val stack
     fun uniqueId(): String {
         try {
             return location.safeSourceName() + ":" + location.safeMethod().toString() + ":" +
-                    location.safeLineNumber() + ":" + location.safeSourceLineNumber()
+                    location.safeLineNumber() + ":" + location.safeKotlinPreferredLineNumber()
         } catch (e: Exception) {
             log.error(e)
             return location.method().toString() + ":" + location.lineNumber()
