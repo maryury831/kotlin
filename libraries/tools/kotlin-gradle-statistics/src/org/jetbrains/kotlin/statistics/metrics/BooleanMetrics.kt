@@ -14,7 +14,7 @@ enum class BooleanMetrics(val type: BooleanOverridePolicy, val anonymization: Bo
     // User environment
 
     // whether the build is executed from IDE or from console
-    EXECUTED_FROM_IDE(OVERRIDE, SAFE),
+    EXECUTED_FROM_IDEA(OVERRIDE, SAFE),
 
 
     // Build script
