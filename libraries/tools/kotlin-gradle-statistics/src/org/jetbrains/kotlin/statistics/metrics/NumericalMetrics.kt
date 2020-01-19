@@ -16,8 +16,8 @@ enum class NumericalMetrics(val type: NumberOverridePolicy, val anonymization: N
     // Number of CPU cores. No other information (e.g. env.PROCESSOR_IDENTIFIER is not reported)
     CPU_NUMBER_OF_CORES(OVERRIDE, SAFE),
 
-    //TODO which artefact?
-    ARTEFACTS_DOWNLOAD_SPEED(OVERRIDE, RANDOM_10_PERCENT),
+    //Download speed in Bytes per second
+    ARTIFACTS_DOWNLOAD_SPEED(OVERRIDE, RANDOM_10_PERCENT),
 
     // Build script
 
