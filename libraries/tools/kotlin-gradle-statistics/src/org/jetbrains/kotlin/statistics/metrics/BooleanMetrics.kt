@@ -21,22 +21,10 @@ enum class BooleanMetrics(val type: BooleanOverridePolicy, val anonymization: Bo
 
     //annotation processors
 
-    //TODO a lot of annotation processors
     ENABLED_KAPT(OR, SAFE),
-    ENABLED_KOTLIN_ANDROID_EXTENSIOONS(OR, SAFE), // includes, e.g. Parcelize
-    ENABLES_DAGGER(OR, SAFE),
-    //kapt "com.android.databinding:compiler:3.0.1"
-    //TODO annotation processors: Kapt, Dagger, Data Binding, Parselize,
-    /*
-    https://awesomeopensource.com/project/androidannotations/androidannotations
-    https://awesomeopensource.com/project/airbnb/DeepLinkDispatch
-    https://awesomeopensource.com/project/johncarl81/parceler
-    https://awesomeopensource.com/project/immutables/immutables
-    https://awesomeopensource.com/project/mapstruct/mapstruct
-    https://awesomeopensource.com/project/janishar/PlaceHolderView
-    https://awesomeopensource.com/project/MatthiasRobbers/shortbread
-     */
-    //TODO a lot of annotation processors
+    ENABLED_DAGGER(OR, SAFE),
+    ENABLED_DATABINDING(OR, SAFE),
+
 
     //TODO compiler plugins:
     //All-open
