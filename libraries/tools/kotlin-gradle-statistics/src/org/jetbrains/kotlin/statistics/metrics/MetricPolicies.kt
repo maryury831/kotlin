@@ -19,18 +19,18 @@ enum class StringOverridePolicy: IMetricContainerFactory<String> {
     CONCAT {
         override fun newMetricContainer(): IMetricContainer<String> = ConcatMetricContainer()
 
-        override fun fromStringRepresentation(state: String): IMetricContainer<String>? {
-            TODO()
-        }
-    },
-    COUNT {
-        override fun newMetricContainer(): IMetricContainer<String> {
-            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-        }
+        override fun fromStringRepresentation(state: String): IMetricContainer<String>? = ConcatMetricContainer(state.split(ConcatMetricContainer.SEPARATOR))
+    }
 
-        override fun fromStringRepresentation(state: String): IMetricContainer<String>? {
-            TODO()
-        }
+    //Should be useful counting container?
+}
+
+private fun applyIfLong(v: String, action: (Long) -> IMetricContainer<Long>) : IMetricContainer<Long>? {
+    val longVal = v.toLongOrNull()
+    return if (longVal == null) {
+        null
+    } else {
+        action(longVal)
     }
 }
 
@@ -38,32 +38,22 @@ enum class NumberOverridePolicy: IMetricContainerFactory<Long> {
     OVERRIDE {
         override fun newMetricContainer(): IMetricContainer<Long> = OverrideMetricContainer<Long>()
 
-        override fun fromStringRepresentation(state: String): IMetricContainer<Long>? {
-            val longVal = state.toLongOrNull()
-            return if (longVal == null) {
-                null
-            } else {
-                OverrideMetricContainer(longVal)
-            }
+        override fun fromStringRepresentation(state: String): IMetricContainer<Long>? = applyIfLong(state) {
+            OverrideMetricContainer(it)
         }
     },
     SUM {
-        override fun newMetricContainer(): IMetricContainer<Long> {
-            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-        }
+        override fun newMetricContainer(): IMetricContainer<Long> = SumMetricContainer()
 
-        override fun fromStringRepresentation(state: String): IMetricContainer<Long>? {
-            TODO()
+        override fun fromStringRepresentation(state: String): IMetricContainer<Long>? = applyIfLong(state) {
+            SumMetricContainer(it)
         }
-
     },
     AVERAGE {
-        override fun newMetricContainer(): IMetricContainer<Long> {
-            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-        }
+        override fun newMetricContainer(): IMetricContainer<Long> = AverageMetricContainer()
 
-        override fun fromStringRepresentation(state: String): IMetricContainer<Long>? {
-            TODO()
+        override fun fromStringRepresentation(state: String): IMetricContainer<Long>? = applyIfLong(state) {
+            AverageMetricContainer(it)
         }
     }
 }
@@ -75,23 +65,12 @@ enum class BooleanOverridePolicy: IMetricContainerFactory<Boolean> {
         override fun fromStringRepresentation(state: String): IMetricContainer<Boolean>? = OverrideMetricContainer(state.toBoolean())
     },
     OR {
-        override fun newMetricContainer(): IMetricContainer<Boolean> {
-            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-        }
+        override fun newMetricContainer(): IMetricContainer<Boolean> = OrMetricContainer()
 
-        override fun fromStringRepresentation(state: String): IMetricContainer<Boolean>? {
-            TODO()
-        }
-    },
-    DISTRIBUTION {
-        override fun newMetricContainer(): IMetricContainer<Boolean> {
-            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-        }
-
-        override fun fromStringRepresentation(state: String): IMetricContainer<Boolean>? {
-            TODO()
-        }
+        override fun fromStringRepresentation(state: String): IMetricContainer<Boolean>? = OrMetricContainer(state.toBoolean())
     }
+
+    // may be add disctribution counter metric container
 }
 
 enum class BooleanAnonymizationPolicy : ValueAnonymizer<Boolean> {
@@ -102,7 +81,6 @@ enum class BooleanAnonymizationPolicy : ValueAnonymizer<Boolean> {
 
 enum class StringAnonymizationPolicy : ValueAnonymizer<String> {
     SAFE {
-        //TODO add list restriction
         override fun anonymize(t: String) = t
     },
     SHA_256 {
