@@ -199,6 +199,29 @@ internal class DefaultKotlinBuildStatsService internal constructor(
         return (gradle as? DefaultGradle)?.services?.get(BuildRequestMetaData::class.java)?.startTime
     }
 
+    private fun reportGlobalMetrics(gradle: Gradle) {
+        System.getProperty("os.name")?.also {
+            sessionLogger.report(StringMetrics.OS_TYPE, gradle.gradleVersion)
+        }
+        sessionLogger.report(NumericalMetrics.CPU_NUMBER_OF_CORES, Runtime.getRuntime().availableProcessors().toLong())
+        sessionLogger.report(StringMetrics.GRADLE_VERSION, gradle.gradleVersion)
+        sessionLogger.report(BooleanMetrics.EXECUTED_FROM_IDEA, System.getProperty("idea.active") != null)
+
+
+        gradle.allprojects {project ->
+            println("Project: $project")
+            for (c in project.configurations) {
+                //TODO use method c.dependencies - it does not invoke resolve
+                println("Dependencies: " + c.dependencies)
+                println("AllDependencies: " + c.allDependencies)
+                println("incoming: " + c.incoming)
+                println("outgoing: " + c.outgoing)
+            }
+            println("Configurations: ${project.configurations}")
+            println("Plugins: ${project.plugins}")
+        }
+    }
+
     override fun projectsEvaluated(gradle: Gradle) {
         runSafe("${DefaultKotlinBuildStatsService::class.java}.projectEvaluated") {
             if (!sessionLogger.isBuildSessionStarted()) {
@@ -206,26 +229,7 @@ internal class DefaultKotlinBuildStatsService internal constructor(
                     DaemonReuseCounter.incrementAndGetOrdinal(),
                     gradleBuildStartTime(gradle)
                 )
-
-                //report per-build metrics
-                sessionLogger.report(StringMetrics.GRADLE_VERSION, gradle.gradleVersion)
-                System.getProperty("os.name")?.also {
-                    sessionLogger.report(StringMetrics.OS_TYPE, gradle.gradleVersion)
-                }
-                sessionLogger.report(NumericalMetrics.CPU_NUMBER_OF_CORES, Runtime.getRuntime().availableProcessors().toLong())
-
-                gradle.allprojects {project ->
-                    println("Project: $project")
-                    for (c in project.configurations) {
-                        //TODO use method c.dependencies - it does not invoke resolve
-                        println("Dependencies: " + c.dependencies)
-                        println("AllDependencies: " + c.allDependencies)
-                        println("incoming: " + c.incoming)
-                        println("outgoing: " + c.outgoing)
-                    }
-                    println("Configurations: ${project.configurations}")
-                    println("Plugins: ${project.plugins}")
-                }
+                reportGlobalMetrics(gradle)
             }
         }
     }
