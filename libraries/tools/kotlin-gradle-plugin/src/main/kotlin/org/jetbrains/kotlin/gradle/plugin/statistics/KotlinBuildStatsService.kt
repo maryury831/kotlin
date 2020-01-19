@@ -49,8 +49,10 @@ internal abstract class KotlinBuildStatsService internal constructor() : BuildAd
 
         // Property name for disabling saving statistical information
         const val ENABLE_STATISTICS_PROPERTY_NAME = "enable_kotlin_performance_profile"
+
         // default state
         const val DEFAULT_STATISTICS_STATE = true
+
         // "emergency file" collecting statistics is disabled it the file exists
         const val DISABLE_STATISTICS_FILE_NAME = "${STATISTICS_FOLDER_NAME}/.disable"
 
@@ -98,7 +100,9 @@ internal abstract class KotlinBuildStatsService internal constructor() : BuildAd
                         val beanName = ObjectName(JMX_BEAN_NAME)
                         val mbs: MBeanServer = ManagementFactory.getPlatformMBeanServer()
                         if (mbs.isRegistered(beanName)) {
-                            log.debug("${KotlinBuildStatsService::class.java} is already instantiated in another classpath. Creating JMX-wrapper")
+                            log.debug(
+                                "${KotlinBuildStatsService::class.java} is already instantiated in another classpath. Creating JMX-wrapper"
+                            )
                             instance = JMXKotlinBuildStatsService(mbs, beanName)
                         } else {
                             val newInstance = DefaultKotlinBuildStatsService(gradle, beanName)
@@ -208,14 +212,29 @@ internal class DefaultKotlinBuildStatsService internal constructor(
         sessionLogger.report(BooleanMetrics.EXECUTED_FROM_IDEA, System.getProperty("idea.active") != null)
 
 
-        gradle.allprojects {project ->
-            println("Project: $project")
-            for (c in project.configurations) {
+        gradle.allprojects { project ->
+            for (configuration in project.configurations) {
+                val configurationName = configuration.name
+                val dependencies = configuration.dependencies
+
+                when (configurationName) {
+                    "kapt" -> {
+                        sessionLogger.report(BooleanMetrics.ENABLED_KAPT, true)
+                        dependencies.forEach { dependency ->
+                            when (dependency.group) {
+                                "com.google.dagger" -> sessionLogger.report(BooleanMetrics.ENABLED_DAGGER, true)
+                                "com.android.databinding" -> sessionLogger.report(BooleanMetrics.ENABLED_DATABINDING, true)
+                            }
+                        }
+                    }
+
+                }
+                //dependencies.
+                //configuration ':kapt' dependencies
+                //configuration ':kapt' dependencies
                 //TODO use method c.dependencies - it does not invoke resolve
-                println("Dependencies: " + c.dependencies)
-                println("AllDependencies: " + c.allDependencies)
-                println("incoming: " + c.incoming)
-                println("outgoing: " + c.outgoing)
+
+
             }
             println("Configurations: ${project.configurations}")
             println("Plugins: ${project.plugins}")
